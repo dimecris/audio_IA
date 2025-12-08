@@ -45,11 +45,11 @@ function draw() {
 
 function mousePressed() {
   // Alternar entre reproducir y pausar
-  if (playing) {
-    oscilador.stop();
-    playing = false;
-  } else {
+  if (!playing) {
     oscilador.start();
     playing = true;
+  } else {
+    oscilador.stop();
+    playing = false;
   }
 }
