@@ -25,7 +25,7 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(400, 550);
+  createCanvas(windowWidth, windowHeight);
   
   
   // Crear filtro pasa-altos
@@ -139,15 +139,11 @@ function draw() {
 // Funciones de control
 
 function togglePlayStop() {
-  // Si está pausado o parado, reproducir
-  if (!sonido.isPlaying() && !sonido.isPaused()) {
+  if (!sonido.isPlaying()) {
     sonido.play();
     playStopBtn.html('Stop');
     pausaBtn.removeAttribute('disabled');
-    pausaBtn.html('Pausa');
-  } 
-  // Si está reproduciendo o pausado, detener
-  else {
+  } else {
     sonido.stop();
     playStopBtn.html('Play');
     pausaBtn.html('Pausa');
@@ -157,11 +153,12 @@ function togglePlayStop() {
 
 function togglePausa() {
   if (sonido.isPlaying()) {
-    sonido.pause();
-    pausaBtn.html('Reanudar');
-  } else if (sonido.isPaused()) {
-    sonido.play();
-    pausaBtn.html('Pausa');
+      sonido.pause();
+      pausaBtn.html('Reanudar');
+    } else {
+      sonido.play();
+      pausaBtn.html('Pausa');
+
   }
 }
 
