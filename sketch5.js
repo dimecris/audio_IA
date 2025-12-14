@@ -8,6 +8,7 @@
 // - Transformaciones geométricas (rotación con teclas A y S)
 // - Cadena de efectos de audio: Filtro Pasa-Altos → Reverb
 // - Controles mediante sliders para todos los parámetros de audio
+// - Alternancia entre webcam y video con tecla V
 //
 // CONTROLES:
 // - [1] Binarización (umbral 0.3)
@@ -16,6 +17,7 @@
 // - [4] Detección de contornos
 // - [A] Rotación horaria
 // - [S] Rotación antihoraria
+// - [V] Alternar entre Webcam/Video
 // Los filtros se pueden combinar manteniendo varias teclas presionadas
 
 // ============================================================
@@ -30,13 +32,16 @@ let amplitude;          // Analizador de amplitud
 // Cadena de efectos de audio conectados en serie
 let highpassFilter;     // Filtro pasa-altos (elimina frecuencias bajas)
 let reverb;             // Efecto de reverberación
+let distortion;         // Efecto de distorsión
 
 // Estado de reproducción del audio
 let isPlaying = false;  // True cuando el audio está sonando
 let isPaused = false;   // True cuando el audio está pausado
 
-// Captura de webcam
+// Captura de webcam y video
 let capture;            // Objeto que captura el video de la cámara
+let videoFile;          // Video cargado desde archivo
+let mostrarWebcam = true; // True = webcam, False = video archivo
 
 // Referencias a elementos HTML de control
 let playStopBtn;        // Botón Play/Stop
@@ -53,6 +58,10 @@ let filterFreqValue, filterResValue;
 // Sliders y valores para el efecto reverb
 let reverbDurationSlider, reverbWetSlider;
 let reverbDurationValue, reverbWetValue;
+
+// Sliders y valores para el efecto distorsión
+let distortionSlider;
+let distortionValue;
 
 // Dimensiones del área de visualización de audio
 let widthWaveform = 760;    // Ancho completo del canvas
@@ -77,6 +86,9 @@ let anguloRotacion = 0;
 function preload() {
   // Cargar el archivo de audio antes de iniciar
   sound = loadSound('seleccionada.mp3');
+  
+  // Cargar el video desde archivo
+  videoFile = createVideo('seleccion.mp4');
 }
 
 // ============================================================
@@ -93,6 +105,12 @@ function setup() {
   capture = createCapture(VIDEO);
   capture.hide();
   
+  // Configurar video archivo sin forzar tamaño
+  // Mantendrá su resolución original (1280x720)
+  videoFile.loop();
+  videoFile.volume(0);  // Silenciar
+  videoFile.hide();
+  
   // Crear analizadores de audio
   fft = new p5.FFT(0.8, 512);      // Suavizado 0.8, 512 muestras
   amplitude = new p5.Amplitude();   // Medidor de volumen
@@ -100,6 +118,7 @@ function setup() {
   // Crear efectos de audio
   highpassFilter = new p5.HighPass();
   reverb = new p5.Reverb();
+  distortion = new p5.Distortion();
   
   // Configuración inicial de efectos sin impacto audible
   // El filtro pasa-altos empieza en 20Hz (rango inaudible para humanos)
@@ -110,11 +129,15 @@ function setup() {
   reverb.set(3, 2, false);  // duración 3s, decay 2s, sin reverse
   reverb.drywet(0);         // 0 = 100% dry (sin reverb)
   
+  // Distorsión configurada pero desactivada
+  distortion.amp(0);        // Amplitud de distorsión en 0 (silencio)
+  
   // Construir cadena de efectos en serie
   // La señal fluye: sound → highpassFilter → reverb → salida de audio
   sound.disconnect();              // Desconectar salida directa del audio
   sound.connect(highpassFilter);   // Conectar audio al filtro
   reverb.process(highpassFilter);  // Procesar filtro con reverb
+  distortion.process(reverb);      // Procesar reverb con distorsión
   
   // Vincular botones HTML con sus funciones
   playStopBtn = select('#playStopBtn');
@@ -158,6 +181,12 @@ function setup() {
   reverbDurationSlider.input(updateReverbDuration);
   reverbWetSlider.input(updateReverbWet);
   
+  // Vincular sliders de la distorsión
+  distortionSlider = select('#distortionSlider');
+  distortionValue = select('#distortionValue');
+  
+  distortionSlider.input(updateDistortion);
+  
   background(30);
 }
 
@@ -191,14 +220,15 @@ function draw() {
     
     pop();
     
-    // Dibujar webcam con todos los efectos aplicados
+    // Dibujar webcam o video con todos los efectos aplicados
     drawWebcam();
     
   } else {
-    // Si el audio no está cargado, mostrar solo la webcam estática
+    // Si el audio no está cargado, mostrar solo la fuente de video estática
+    let videoActual = mostrarWebcam ? capture : videoFile;
     push();
     imageMode(CENTER);
-    image(capture, width/2, 340, 320, 240);
+    image(videoActual, width/2, 340, 320, 240);
     pop();
   }
 }
@@ -206,7 +236,7 @@ function draw() {
 // ============================================================
 // FUNCIÓN DRAWWEBCAM
 // ============================================================
-// Dibuja la webcam con escala reactiva, filtros y rotación
+// Dibuja la webcam o video con escala reactiva, filtros y rotación
 function drawWebcam() {
   // Obtener nivel actual de amplitud del audio (0.0 a 1.0)
   let level = amplitude.getLevel();
@@ -215,13 +245,23 @@ function drawWebcam() {
   let scale = map(level, 0, 0.3, 1, 1.5);
   scale = constrain(scale, 1, 1.5);
   
-  // Dimensiones fijas de la webcam
-  let baseWidth = 380;
-  let baseHeight = 285;  // Proporción aproximada 4:3
+  // Seleccionar fuente de video según el estado
+  let videoActual = mostrarWebcam ? capture : videoFile;
   
-  // Aplicar escala reactiva
-  let displayWidth = baseWidth * scale;
-  let displayHeight = baseHeight * scale;
+  // Calcular dimensiones responsivas manteniendo relación de aspecto
+  let dimensiones = calcularDimensionesVideo(videoActual);
+  
+  // Si no se pudieron calcular dimensiones, salir
+  if (!dimensiones) {
+    fill(255);
+    textAlign(CENTER, CENTER);
+    text("Cargando video...", width / 2, height / 2);
+    return;
+  }
+  
+  // Aplicar escala reactiva a las dimensiones calculadas
+  let displayWidth = dimensiones.width * scale;
+  let displayHeight = dimensiones.height * scale;
   
   // Centrar en el canvas
   let displayX = (width - displayWidth) / 2;
@@ -237,9 +277,9 @@ function drawWebcam() {
   let img;
   
   if (!hayFiltros) {
-    img = capture;
+    img = videoActual;
   } else {
-    img = capture.get();
+    img = videoActual.get();
 
     if (filtrosPulsados['1']) {
       img.filter(THRESHOLD, 0.3);
@@ -258,7 +298,7 @@ function drawWebcam() {
     }
   }
   
-  // Dibujar webcam con transformación de rotación
+  // Dibujar video con transformación de rotación
   push();
   
   translate(displayX + displayWidth/2, displayY + displayHeight/2);
@@ -281,8 +321,48 @@ function drawWebcam() {
   rect(0, 0, displayWidth, displayHeight);
   
   pop();
+  infoEfectos(scale)
+  }
+
+// ============================================================
+// FUNCIÓN PARA CALCULAR DIMENSIONES RESPONSIVAS
+// ============================================================
+// Calcula el tamaño óptimo del video manteniendo su relación de aspecto original
+// sin deformarlo, ajustándolo a un ancho máximo de 460px
+function calcularDimensionesVideo(video) {
   
-  infoEfectos(scale);
+  // Verificar que el video esté cargado y tenga dimensiones válidas
+  if (!video || video.width <= 0 || video.height <= 0) {
+    return null;
+  }
+  
+  // Obtener dimensiones reales del video
+  let videoWidth = video.width;
+  let videoHeight = video.height;
+  
+  // Calcular relación de aspecto original
+  let aspectRatio = videoWidth / videoHeight;
+  
+  // Definir ancho máximo permitido
+  let maxWidth = 380;
+  
+  // Calcular dimensiones finales manteniendo la proporción
+  let finalWidth = maxWidth;
+  let finalHeight = maxWidth / aspectRatio;
+  
+  // Opcional: limitar la altura máxima
+  let maxHeight = 380;
+  if (finalHeight > maxHeight) {
+    finalHeight = maxHeight;
+    finalWidth = maxHeight * aspectRatio;
+  }
+  
+  // Retornar objeto con las dimensiones calculadas
+  return {
+    width: finalWidth,
+    height: finalHeight,
+    aspectRatio: aspectRatio
+  };
 }
 
 // ============================================================
@@ -443,6 +523,7 @@ function resetAllControls() {
   resetFilterRes();
   resetReverbDuration();
   resetReverbWet();
+  resetDistortion();
 }
 
 function togglePause() {
@@ -541,6 +622,16 @@ function updateReverbWet() {
   }
 }
 
+function updateDistortion() {
+  let dist = distortionSlider.value();
+  distortionValue.html(nf(dist, 1, 2));
+  
+  if (distortion) {
+    // Amplitud de la distorsión (0 = silencio, 1 = sin distorsión, >1 = más distorsión)
+    distortion.amp(dist);
+  }
+}
+
 // ============================================================
 // FUNCIONES DE RESET DE PARÁMETROS
 // ============================================================
@@ -581,6 +672,11 @@ function resetReverbWet() {
   updateReverbWet();
 }
 
+function resetDistortion() {
+  distortionSlider.value(0);
+  updateDistortion();
+}
+
 // ============================================================
 // FUNCIONES DE EVENTOS DE TECLADO
 // ============================================================
@@ -590,6 +686,11 @@ function keyPressed() {
   // Verificar si la tecla presionada está en nuestro objeto de filtros
   if (filtrosPulsados[key] !== undefined) {
     filtrosPulsados[key] = true;  // Activar filtro
+  }
+  
+  // Tecla V para alternar entre webcam y video
+  if (key === 'v' || key === 'V') {
+    mostrarWebcam = !mostrarWebcam;  // Cambiar estado
   }
 }
 
@@ -606,6 +707,7 @@ function infoEfectos(scale) {
   fill(255);
   textSize(12);
   textAlign(CENTER);
+  
   
   let anguloGrados = degrees(anguloRotacion) % 360;
   if (anguloGrados < 0) anguloGrados += 360;
@@ -625,7 +727,8 @@ function infoEfectos(scale) {
   text('Efecto: ' + textoFinal, width/2, height - 25);
   
   fill(255, 200, 100);
-  text('Rotación: [A] Horario | [S] Antihorario', width/2, height - 10);
+  text('Rotación: [A] Horario | [S] Antihorario | [V] Cambiar Webcam/Video', width/2, height - 10);
+
 }
 
 

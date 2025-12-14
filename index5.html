@@ -32,8 +32,8 @@
 
     h1 {
       text-align: center;
-      margin-bottom: 10px;
-      font-size: 2.5em;
+      margin-bottom: 20px;
+      font-size: 1.5em;
       text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     }
 
@@ -119,12 +119,11 @@
       flex-flow: column;
       gap: 15px;
       justify-content: center;
-      margin-bottom: 30px;
       flex: 1;
     }
 
     .slider-group h3 {
-      margin-bottom: 15px;
+      margin-bottom: 10px;
       font-size: 1.3em;
       text-align: center;
       color: #fff;
@@ -132,13 +131,12 @@
     }
 
     .slider-container {
-      margin-bottom: 20px;
+      margin-bottom: 5px;
     }
 
     .slider-label {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 8px;
       font-size: 14px;
       opacity: 0.9;
     }
@@ -208,18 +206,20 @@
       transform: rotate(180deg) scale(1.1);
     }
 
-    .info {
+    .keyboard-info {
       background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(10px);
       border-radius: 15px;
       padding: 20px;
       text-align: center;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      font-size: 14px;
     }
 
-    .info p {
+    .keyboard-info p {
       margin: 5px 0;
       opacity: 0.9;
+
     }
 
     .keyboard-info {
@@ -264,13 +264,14 @@
     .keyboard-section h4 {
       margin-bottom: 10px;
       font-size: 1.1em;
-      color: #ffd700;
+
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1> Reproductor de Audio con Webcam y Efectos </h1>
+    <h1>Reproductor de Audio con Webcam y Efectos</h1>
+  
     
     <div id="canvas-container"></div>
     
@@ -284,7 +285,7 @@
         <!-- Columna 1: Controles Básicos -->
         <div class="slider-column">
           <div class="slider-group">
-            <h3>🎚️ Controles Básicos</h3>
+            <h3>Controles Básicos</h3>
             
             <div class="slider-container">
               <div class="slider-label">
@@ -327,7 +328,7 @@
         <!-- Columna 2: Filtro Pasa-Altos -->
         <div class="slider-column">
           <div class="slider-group">
-            <h3>🎛️ Filtro Pasa-Altos</h3>
+            <h3>Filtro Pasa-Altos</h3>
             
             <div class="slider-container">
               <div class="slider-label">
@@ -355,10 +356,10 @@
           </div>
         </div>
 
-        <!-- Columna 3: Reverb -->
+        <!-- Columna 3: Reverb y Distorsión -->
         <div class="slider-column">
           <div class="slider-group">
-            <h3>🌊 Reverb</h3>
+            <h3>+ Efectos</h3>
             
             <div class="slider-container">
               <div class="slider-label">
@@ -383,12 +384,29 @@
                 <button class="reset-btn" onclick="resetReverbWet()" title="Resetear">↻</button>
               </div>
             </div>
+
+              <div class="slider-container">
+              <div class="slider-label">
+                <span>Distorsión: <span id="distortionValue">0.00</span></span>
+              </div>
+              <div class="slider-controls">
+                <div class="slider-wrapper">
+                  <input type="range" id="distortionSlider" min="0" max="1" value="0" step="0.01">
+                </div>
+                <button class="reset-btn" onclick="resetDistortion()" title="Resetear">↻</button>
+              </div>
+            </div>
           </div>
+
+         
+            
+          
+        
         </div>
       </div>
     </div>
 
-    <div class="info">
+    <div class="keyboard-info">
       <div class="keyboard-sections">
         <div class="keyboard-section">
           <h4>Efectos de Imagen</h4>
@@ -408,6 +426,7 @@
           <ul>
             <li><strong>[A]</strong> Rotación Horaria ↻</li>
             <li><strong>[S]</strong> Rotación Antihoraria ↺</li>
+            <li><strong>[V]</strong> Cambiar Webcam/Video</li>
           </ul>
           <p style="margin-top: 10px; font-size: 0.85em; opacity: 0.8;">
             Mantén presionada la tecla para rotación continua
@@ -420,6 +439,6 @@
     </div>
   </div>
 
-  <script src="sketch4.js"></script>
+  <script src="sketch5.js"></script>
 </body>
 </html>
