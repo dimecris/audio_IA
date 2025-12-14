@@ -11,6 +11,9 @@ let reverb;
 let isPlaying = false;
 let isPaused = false;
 
+// Webcam
+let capture;
+
 // Referencias a elementos HTML
 let playStopBtn;
 let pauseBtn;
@@ -27,14 +30,23 @@ let filterFreqValue, filterResValue;
 let reverbDurationSlider, reverbWetSlider;
 let reverbDurationValue, reverbWetValue;
 
+// Dimensiones de visualizaciones de audio
+let widthWaveform = 760;
+let heightWaveform = 200;
+
 function preload() {
   // Cargar archivo de audio por defecto
   sound = loadSound('seleccionada.mp3');
 }
 
 function setup() {
-  let canvas = createCanvas(760, 200);
+  let canvas = createCanvas(760, 500); // Aumentar altura para la webcam
   canvas.parent('canvas-container');
+  
+  // Inicializar webcam
+  capture = createCapture(VIDEO);
+  capture.size(320, 240);
+  capture.hide(); // Ocultar el elemento video HTML por defecto
   
   // Inicializar analizadores de audio
   fft = new p5.FFT(0.8, 512);
@@ -110,6 +122,11 @@ function draw() {
   background(30, 30, 50);
   
   if (sound && sound.isLoaded()) {
+    
+    // Push y translate para todas las visualizaciones de audio
+    push();
+    translate(0, height - heightWaveform);
+    
     // Visualización de forma de onda
     drawWaveform();
     
@@ -118,7 +135,58 @@ function draw() {
     
     // Nivel de amplitud
     drawAmplitude();
-  } 
+    
+    pop();
+    
+    // Dibujar webcam con dimensiones reactivas
+    drawWebcam();
+    
+  } else {
+    // Mostrar webcam normal si no hay audio
+    push();
+    imageMode(CENTER);
+    image(capture, width/2, 340, 320, 240);
+    pop();
+  }
+}
+function drawWebcam() {
+  // Obtener nivel de amplitud
+  let level = amplitude.getLevel();
+  
+  // **APARTADO B: Modificar dimensiones de webcam según amplitud**
+  // Mapear amplitud a escala (1x a 1.5x del tamaño original)
+  let scale = map(level, 0, 0.3, 1, 1.5);
+  scale = constrain(scale, 1, 1.5); // Limitar escala
+  
+  // Dimensiones base de la webcam
+  let baseWidth = 320;
+  let baseHeight = 240;
+  
+  // Calcular dimensiones escaladas manteniendo proporción 4:3
+  let webcamWidth = baseWidth * scale;
+  let webcamHeight = baseHeight * scale;
+  
+  // Centrar la webcam
+  let webcamX = (width - webcamWidth) / 2;
+  let webcamY = (height - webcamHeight) / 2;
+  
+  // Dibujar webcam con dimensiones reactivas
+  push();
+  imageMode(CORNER);
+  image(capture, webcamX, webcamY, webcamWidth, webcamHeight);
+  
+  // Marco reactivo a la amplitud
+  noFill();
+  stroke(100, 200, 255, map(level, 0, 0.3, 50, 255));
+  strokeWeight(map(level, 0, 0.3, 2, 8));
+  rect(webcamX, webcamY, webcamWidth, webcamHeight);
+  pop();
+  
+  // Información de escala
+  fill(255);
+  textSize(12);
+  textAlign(CENTER);
+  text('Escala Webcam: ' + nf(scale, 1, 2) + 'x', width/2, webcamY + webcamHeight + 20);
 }
 
 function drawWaveform() {
@@ -130,42 +198,41 @@ function drawWaveform() {
   
   beginShape();
   for (let i = 0; i < waveform.length; i++) {
-    let x = map(i, 0, waveform.length, 0, width);
-    let y = map(waveform[i], -1, 1, height * 0.3, height * 0.7);
+    let x = map(i, 0, waveform.length, 0, widthWaveform);
+    let y = map(waveform[i], -1, 1, 10, 60);
     vertex(x, y);
   }
   endShape();
 }
 
 function drawSpectrum() {
-  let spectrum = fft.analyze(); // Obtiene el espectro de frecuencias
-  // Lo hace a traves de p5.FFT
+  let spectrum = fft.analyze();
   
   noStroke();
-  fill(255, 100, 200, 150);
+  fill(255, 100, 200, 100);
   
   for (let i = 0; i < spectrum.length; i++) {
-    let x = map(i, 0, spectrum.length, 0, width); //mapear x
-    let h = map(spectrum[i], 0, 255, 0, height * 0.8); //mapear altura
-    let y = height - h;
+    let x = map(i, 0, spectrum.length, 0, widthWaveform);
+    let h = map(spectrum[i], 0, 255, 0, 150);
+    let y = heightWaveform - h;
     
-    rect(x, y, width / spectrum.length, h); //dibujar barra
+    rect(x, y, widthWaveform / spectrum.length, h);
   }
 }
 
 function drawAmplitude() {
   let level = amplitude.getLevel();
-  let levelHeight = map(level, 0, 1, 0, height);
+  let levelHeight = map(level, 0, 1, 0, 180);
   
-  fill(0, 255, 150, 100);
+  fill(0, 255, 150, 150);
   noStroke();
-  rect(0, height - levelHeight, 10, levelHeight);
+  rect(0, heightWaveform - levelHeight, 10, levelHeight);
   
   // Mostrar valor numérico
   fill(255);
   textSize(12);
-  textAlign(LEFT, BOTTOM);
-  text('Nivel: ' + nf(level, 1, 3), 15, height - 10);
+  textAlign(LEFT, TOP);
+  text('Nivel: ' + nf(level, 1, 3), 15, 10);
 }
 
 
@@ -220,7 +287,7 @@ function togglePause() {
   }
   
   if (!isPlaying) {
-    return; // No se puede pausar si no está reproduciendo
+    return;
   }
   
   if (isPaused) {
