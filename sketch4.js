@@ -1,3 +1,5 @@
+// Kris Darias  - Diciembre 2025
+// Proyecto 2 - PEC 2 Ejercicio 4 - UOC Grado Multimedia
 // ============================================================
 // REPRODUCTOR DE AUDIO INTERACTIVO CON WEBCAM Y EFECTOS
 // ============================================================

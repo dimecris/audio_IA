@@ -26,8 +26,10 @@
       max-width: 1200px;
       margin: 0 auto;
     }
-    ul{
+
+    ul {
       list-style: none;
+      padding: 0;
     }
 
     h1 {
@@ -35,13 +37,6 @@
       margin-bottom: 20px;
       font-size: 1.5em;
       text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    }
-
-    .subtitle {
-      text-align: center;
-      margin-bottom: 30px;
-      font-size: 1.1em;
-      opacity: 0.9;
     }
 
     #canvas-container {
@@ -57,7 +52,7 @@
       background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(10px);
       border-radius: 15px;
-      padding: 30px;
+      padding: 25px;
       margin-bottom: 20px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     }
@@ -66,7 +61,7 @@
       display: flex;
       gap: 15px;
       justify-content: center;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
 
     button {
@@ -91,15 +86,10 @@
       transform: translateY(0);
     }
     
-    #playStopBtn {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
-    
     #pauseBtn {
       background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      color: white;
     }
+
     .slider-content {
       display: flex;
       flex-direction: row;
@@ -188,9 +178,9 @@
     }
 
     .reset-btn {
-      min-width: 36px;
-      width: 36px;
-      height: 36px;
+      min-width: 25px;
+      width: 25px;
+      height: 25px;
       padding: 0;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.2);
@@ -219,33 +209,6 @@
     .keyboard-info p {
       margin: 5px 0;
       opacity: 0.9;
-
-    }
-
-    .keyboard-info {
-      background: rgba(255, 255, 255, 0.15);
-      padding: 15px;
-      border-radius: 10px;
-      margin-top: 15px;
-    }
-
-    .keyboard-info h3 {
-      margin-bottom: 10px;
-      font-size: 1.2em;
-    }
-
-    .keyboard-info ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    .keyboard-info li {
-      margin: 5px 0;
-      padding: 5px 10px;
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 5px;
-      display: inline-block;
-      margin-right: 10px;
     }
 
     .keyboard-sections {
@@ -264,14 +227,21 @@
     .keyboard-section h4 {
       margin-bottom: 10px;
       font-size: 1.1em;
+    }
 
+    .keyboard-section ul li {
+      margin: 5px 0;
+      padding: 5px 10px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+      display: inline-block;
+      margin-right: 10px;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Reproductor de Audio con Webcam y Efectos</h1>
-  
     
     <div id="canvas-container"></div>
     
@@ -385,7 +355,7 @@
               </div>
             </div>
 
-              <div class="slider-container">
+            <div class="slider-container">
               <div class="slider-label">
                 <span>Distorsión: <span id="distortionValue">0.00</span></span>
               </div>
@@ -397,11 +367,6 @@
               </div>
             </div>
           </div>
-
-         
-            
-          
-        
         </div>
       </div>
     </div>
@@ -435,7 +400,7 @@
       </div>
 
       <p style="margin-top: 20px;"><strong>Webcam:</strong> Escala reactiva según amplitud del sonido (1.0x - 1.5x)</p>
-      <p><strong> Efectos en cadena:</strong> Audio → Filtro Pasa-Altos → Reverb → Salida</p>
+      <p><strong>Efectos en cadena:</strong> Audio → Filtro Pasa-Altos → Reverb → Salida</p>
     </div>
   </div>
 

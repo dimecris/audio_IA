@@ -1,3 +1,19 @@
+// ============================================================
+// REPRODUCTOR DE AUDIO CON VISUALIZACIONES Y EFECTOS
+// ============================================================
+// Este sketch implementa un reproductor de audio con tres tipos
+// de visualizaciones en tiempo real:
+// - Forma de onda (waveform)
+// - Espectro de frecuencias
+// - Nivel de amplitud
+//
+// Incluye una cadena de efectos de audio en serie:
+// sound → Filtro Pasa-Altos → Reverb → salida
+//
+// Todos los parámetros son controlables mediante sliders:
+// volumen, velocidad, panorámica, frecuencia de corte, resonancia,
+// duración del reverb y mezcla wet/dry.
+
 // Variables para el audio y efectos
 let sound;
 let fft;
@@ -52,17 +68,15 @@ function setup() {
   highpassFilter.freq(20); // Frecuencia de corte en 20 Hz
   highpassFilter.res(0.1); // Resonancia mínima
   
-  // Reverb configurado pero sin mezcla (dry)
-  reverb.set(3, 2, false); // duración, decay, reverse
-  reverb.drywet(0); // 0 = solo señal original (sin reverb)
+  reverb.set(3, 2, false);    // Duración, decay, reverse
+  reverb.drywet(0);           // Sin reverb inicialmente
   
-  // **CADENA DE EFECTOS EN SERIE:**
-  // sound → highpassFilter → reverb → salida
-  sound.disconnect(); // Desconectar la salida directa
-  sound.connect(highpassFilter); // Conectar sonido al filtro
-  reverb.process(highpassFilter); // Procesar filtro con reverb
+  // Cadena de efectos: sound → highpassFilter → reverb → salida
+  sound.disconnect();
+  sound.connect(highpassFilter);
+  reverb.process(highpassFilter);
   
-  // Obtener referencias a elementos HTML
+  // Vincular elementos HTML
   playStopBtn = select('#playStopBtn');
   pauseBtn = select('#pauseBtn');
   
@@ -70,7 +84,7 @@ function setup() {
   playStopBtn.mousePressed(togglePlayStop);
   pauseBtn.mousePressed(togglePause);
   
-  // Sliders - Controles básicos
+  // Vincular sliders básicos
   volumeSlider = select('#volumeSlider');
   rateSlider = select('#rateSlider');
   panSlider = select('#panSlider');
@@ -83,7 +97,7 @@ function setup() {
   rateSlider.input(updateRate);
   panSlider.input(updatePan);
   
-  // Sliders - Filtro pasa-altos
+  // Vincular sliders del filtro
   filterFreqSlider = select('#filterFreqSlider');
   filterResSlider = select('#filterResSlider');
   
@@ -93,7 +107,7 @@ function setup() {
   filterFreqSlider.input(updateFilterFreq);
   filterResSlider.input(updateFilterRes);
   
-  // Sliders - Reverb
+  // Vincular sliders del reverb
   reverbDurationSlider = select('#reverbDurationSlider');
   reverbWetSlider = select('#reverbWetSlider');
   
@@ -110,7 +124,6 @@ function draw() {
   background(30, 30, 50);
   
   if (sound && sound.isLoaded()) {
-    // Visualización de forma de onda
     drawWaveform();
     
     // Visualización de espectro de frecuencias
@@ -189,7 +202,7 @@ function togglePlayStop() {
     isPaused = false;
     playStopBtn.html('▶ Play');
     
-    // **REINICIAR TODOS LOS CONTROLES AL PRESIONAR STOP**
+    // Al hacer stop, resetear todos los controles
     resetAllControls();
     
     // Reiniciar también el botón de pausa
@@ -236,7 +249,7 @@ function togglePause() {
   }
 }
 
-// Funciones para actualizar los parámetros
+// Actualización de parámetros
 
 function updateVolume() {
   let vol = volumeSlider.value();
@@ -305,12 +318,12 @@ function updateReverbWet() {
   reverbWetValue.html(nf(wet, 1, 2));
   
   if (reverb) {
-    // drywet: 0 = solo señal original, 1 = solo reverb
     reverb.drywet(wet);
   }
 }
 
-// Funciones de reset para cada slider
+// Funciones de reset
+
 function resetVolume() {
   volumeSlider.value(0.5);
   updateVolume();

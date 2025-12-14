@@ -1,3 +1,20 @@
+// Kris Darias  - Diciembre 2025
+// Proyecto 2 - PEC 2 Ejercicio 3 - UOC Grado Multimedia
+// ============================================================
+// REPRODUCTOR DE AUDIO CON WEBCAM REACTIVA
+// ============================================================
+// Este sketch crea un reproductor de audio con visualizaciones en tiempo real
+// que incluye:
+// - Forma de onda (waveform)
+// - Espectro de frecuencias
+// - Nivel de amplitud
+// - Webcam con escala reactiva al volumen del audio
+// - Cadena de efectos: Filtro Pasa-Altos → Reverb
+// - Controles mediante sliders para todos los parámetros
+//
+// La webcam cambia de tamaño según la amplitud del sonido (1.0x a 1.5x)
+// y tiene un marco decorativo que también reacciona al audio.
+
 // Variables para el audio y efectos
 let sound;
 let fft;
@@ -138,17 +155,18 @@ function draw() {
     
     pop();
     
-    // Dibujar webcam con dimensiones reactivas
+    // Webcam con escala reactiva
     drawWebcam();
     
   } else {
-    // Mostrar webcam normal si no hay audio
+    // Mientras carga, mostrar webcam normal
     push();
     imageMode(CENTER);
     image(capture, width/2, 340, 320, 240);
     pop();
   }
 }
+
 function drawWebcam() {
   // Obtener nivel de amplitud
   let level = amplitude.getLevel();
@@ -234,8 +252,6 @@ function drawAmplitude() {
   textAlign(LEFT, TOP);
   text('Nivel: ' + nf(level, 1, 3), 15, 10);
 }
-
-
 
 function togglePlayStop() {
   if (!sound || !sound.isLoaded()) {

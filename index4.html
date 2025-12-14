@@ -26,7 +26,8 @@
       max-width: 1200px;
       margin: 0 auto;
     }
-    ul{
+
+    ul {
       list-style: none;
     }
 
@@ -35,13 +36,6 @@
       margin-bottom: 10px;
       font-size: 2.5em;
       text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    }
-
-    .subtitle {
-      text-align: center;
-      margin-bottom: 30px;
-      font-size: 1.1em;
-      opacity: 0.9;
     }
 
     #canvas-container {
@@ -90,16 +84,11 @@
     button:active {
       transform: translateY(0);
     }
-    
-    #playStopBtn {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
-    
+
     #pauseBtn {
       background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      color: white;
     }
+
     .slider-content {
       display: flex;
       flex-direction: row;
@@ -222,32 +211,6 @@
       opacity: 0.9;
     }
 
-    .keyboard-info {
-      background: rgba(255, 255, 255, 0.15);
-      padding: 15px;
-      border-radius: 10px;
-      margin-top: 15px;
-    }
-
-    .keyboard-info h3 {
-      margin-bottom: 10px;
-      font-size: 1.2em;
-    }
-
-    .keyboard-info ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    .keyboard-info li {
-      margin: 5px 0;
-      padding: 5px 10px;
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 5px;
-      display: inline-block;
-      margin-right: 10px;
-    }
-
     .keyboard-sections {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -265,6 +228,15 @@
       margin-bottom: 10px;
       font-size: 1.1em;
       color: #ffd700;
+    }
+
+    .keyboard-section ul li {
+      margin: 5px 0;
+      padding: 5px 10px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+      display: inline-block;
+      margin-right: 10px;
     }
   </style>
 </head>
