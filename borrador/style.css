@@ -1,0 +1,42 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+canvas {
+  display: block;
+}
+
+#panel-control {
+  font-family: Arial, sans-serif;
+}
+
+#panel-control button {
+  margin: 5px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#panel-control button:hover {
+  background-color: #45a049;
+}
+
+#panel-control button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+#panel-control input[type="range"] {
+  width: 100%;
+  margin: 10px 0;
+}
+
+#panel-control p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #333;
+}

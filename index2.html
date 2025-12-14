@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reproductor Audio p5.sound</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 25px;
+    }
+    
+    .controls {
+      margin-bottom: 25px;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    
+    button {
+      padding: 12px 30px;
+      font-size: 16px;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgb(0 0 0 / 9%);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    #playStopBtn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    #pauseBtn {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+    }
+    .slider-content {
+      display: flex;
+      flex-direction: row;
+      gap: 40px;
+      align-items: flex-start;
+    }
+    .slider-group {
+      display: flex;
+      flex-flow: column;
+      gap: 15px;
+      flex: 1;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    
+    .slider-container {
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+    }
+    
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    
+    .slider-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .reset-btn {
+      padding: 4px 8px;
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      box-shadow: none;
+      color: #fff;
+      font-size: 17px;
+    }
+    
+    .reset-btn:hover {
+      background: rgba(255, 255, 255, 0.35);
+      transform: rotate(90deg) scale(1.1);
+    }
+    
+    .reset-btn:active {
+      transform: rotate(90deg) scale(0.95);
+    }
+    
+    .slider-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .slider-wrapper input[type="range"] {
+      flex: 1;
+    }
+    
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.2);
+      outline: none;
+      -webkit-appearance: none;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: white;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: white;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      border: none;
+    }
+    
+    .section-title {
+      margin-top: 15px;
+      margin-bottom: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+      padding-bottom: 10px;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .file-input {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    input[type="file"] {
+      display: none;
+    }
+    
+    .file-label {
+      display: inline-block;
+      padding: 10px 25px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .file-label:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.05);
+    }
+    
+    #canvas-container {
+      margin-top: 30px;
+      margin-bottom: 30px;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎵 Reproductor de Audio p5.sound</h1>
+    <div id="canvas-container"></div>
+    
+    
+    <div class="button-group">
+      <button id="playStopBtn">▶ Play</button>
+      <button id="pauseBtn">⏸ Pausa</button>
+    </div>
+    
+    <div class="slider-content">
+        <div class="slider-group">
+            <div class="section-title">Controles Básicos</div>
+            <div class="slider-container">
+            <div class="slider-label">
+                <span>Volumen</span>
+                <div class="slider-controls">
+                <span id="volumeValue">0.5</span>
+                <button class="reset-btn" onclick="resetVolume()" title="Resetear">↻</button>
+                </div>
+            </div>
+            <div class="slider-wrapper">
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
+            </div>
+            </div>
+            
+            <div class="slider-container">
+            <div class="slider-label">
+                <span>Velocidad (Rate)</span>
+                <div class="slider-controls">
+                <span id="rateValue">1.0</span>
+                <button class="reset-btn" onclick="resetRate()" title="Resetear">↻</button>
+                </div>
+            </div>
+            <div class="slider-wrapper">
+                <input type="range" id="rateSlider" min="0.5" max="2" step="0.01" value="1">
+            </div>
+            </div>
+            
+            <div class="slider-container">
+            <div class="slider-label">
+                <span>Panorámica (Pan)</span>
+                <div class="slider-controls">
+                <span id="panValue">0.0</span>
+                <button class="reset-btn" onclick="resetPan()" title="Resetear">↻</button>
+                </div>
+            </div>
+            <div class="slider-wrapper">
+                <input type="range" id="panSlider" min="-1" max="1" step="0.01" value="0">
+            </div>
+            </div>
+        </div>
+        
+
+        <div class="slider-group">
+            <div class="section-title">Highpass</div>
+            <div class="slider-container">
+            <div class="slider-label">
+                <span>Frecuencia de Corte: <span id="filterFreqValue">20 Hz</span></span>
+            </div>
+            <div class="slider-controls">
+                <div class="slider-wrapper">
+                    <input type="range" id="filterFreqSlider" min="20" max="10000" value="20" step="10">
+                </div>
+                <button class="reset-btn" onclick="resetFilterFreq()" title="Resetear">↻</button>
+            </div>
+            </div>
+            
+            <div class="slider-container">
+            <div class="slider-label">
+                <span>Resonancia (Q): <span id="filterResValue">0.1</span></span>
+            </div>
+            <div class="slider-controls">
+                <div class="slider-wrapper">
+                    <input type="range" id="filterResSlider" min="0.1" max="20" value="0.1" step="0.1">
+                </div>
+                <button class="reset-btn" onclick="resetFilterRes()" title="Resetear">↻</button>
+            </div>
+            </div>
+        </div>
+        
+        
+        <div class="slider-group">
+            <div class="section-title">Reverb</div>
+            <div class="slider-container">
+            <div class="slider-label">
+                <span>Duración Reverb: <span id="reverbDurationValue">3 s</span></span>
+            </div>
+            <div class="slider-controls">
+                <div class="slider-wrapper">
+                    <input type="range" id="reverbDurationSlider" min="1" max="20" value="3" step="0.1">
+                </div>
+                <button class="reset-btn" onclick="resetReverbDuration()" title="Resetear">↻</button>
+            </div>
+            </div>
+            
+            <div class="slider-container">
+            <div class="slider-label">
+                <span>Nivel Reverb: <span id="reverbWetValue">0.00</span></span>
+            </div>
+            <div class="slider-controls">
+                <div class="slider-wrapper">
+                    <input type="range" id="reverbWetSlider" min="0" max="1" value="0" step="0.01">
+                </div>
+                <button class="reset-btn" onclick="resetReverbWet()" title="Resetear">↻</button>
+            </div>
+            </div>
+        </div>  
+    </div>
+    
+    
+  </div>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/addons/p5.sound.min.js"></script>
+  <script src="sketch2.js"></script>
+</body>
+</html>
